@@ -1,4 +1,4 @@
-from board_element import BoardElement
+from board_element import BoardElement, BoardElementState
 from random import sample
 from enum import Enum
 from collections.abc import Sequence
@@ -86,8 +86,27 @@ class Board:
             proximity = self._calculate_proximity_for_single_element(row, col)
             element.proximity = proximity
 
-    def check_game_state(self):
-        pass
+    def check_win_state(self):
+        flagged_mines = (element for element in self.elements if element.is_mine
+                         and element.state == BoardElementState.FLAGGED)
+        all_mines_are_unflagged = True
+        try:
+            next(flagged_mines)
+            all_mines_are_unflagged = False
+        except StopIteration:
+            all_mines_are_unflagged = True
+        number_of_flags = sum(1 for element in self.elements if element.is_flagged)
+        if all_mines_are_unflagged and number_of_flags == self.number_of_mines:
+            self.game_state = GameState.WIN
+
+    def reveal_element(self, row, col):
+        element = self[row, col]
+        element.state = BoardElementState.REVEALED
+        index_offset = (-1, 0, 1)
+        if element.proximity == 0:
+            new_coords = ((row + i, col + j) for i, j in zip(index_offset, index_offset) if not (i == 0 and j == 0))
+            for coords in new_coords:
+                self.reveal_element(*coords)
 
     def _set_up_board(self):
         bomb_indices = sample(range(0, self.number_of_elements), k=self.number_of_mines)
