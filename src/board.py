@@ -1,7 +1,6 @@
-from board_element import BoardElement, BoardElementState
+from src.board_element import BoardElement, BoardElementState
 from random import sample
 from enum import Enum
-from collections.abc import Sequence
 
 
 class GameState(Enum):
