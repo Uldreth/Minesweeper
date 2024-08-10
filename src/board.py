@@ -57,7 +57,8 @@ class Board:
 
     @game_state.setter
     def game_state(self, value: GameState):
-        self._game_state = value
+        if self.game_state != GameState.LOSS:
+            self._game_state = value
 
     @property
     def elements(self):
@@ -89,7 +90,6 @@ class Board:
     def check_win_state(self):
         flagged_mines = (element for element in self.elements if element.is_mine
                          and element.state == BoardElementState.FLAGGED)
-        all_mines_are_unflagged = True
         try:
             next(flagged_mines)
             all_mines_are_unflagged = False
@@ -102,6 +102,8 @@ class Board:
     def reveal_element(self, row, col):
         element = self[row, col]
         element.state = BoardElementState.REVEALED
+        if element.is_mine:
+            self.game_state = GameState.LOSS
         index_offset = (-1, 0, 1)
         if element.proximity == 0:
             new_coords = ((row + i, col + j) for i, j in zip(index_offset, index_offset) if not (i == 0 and j == 0))
