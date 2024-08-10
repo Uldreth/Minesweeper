@@ -24,18 +24,16 @@ class Board:
         self._game_state = GameState.INITIALIZED
         self._elements: list[BoardElement] = self._set_up_board()
 
-    def __getitem__(self, coordinates: int | Sequence):
+    def __getitem__(self, coordinates: int | tuple[int, int]):
         if isinstance(coordinates, int):
             return self.elements[coordinates]
-        if isinstance(coordinates, Sequence):
-            # Handle this based on sequence, cast to tuple
-            pass
-        if len(coordinates) == 1:
-            return self.elements
-        if len(coordinates) != 2:
-            raise IndexError("Invalid number of arguments (must be one or two).")
-        idx = self.coordinates_to_index(*coordinates)
-        return self.elements[idx]
+        if isinstance(coordinates, tuple) and len(coordinates) == 2:
+            idx = self.coordinates_to_index(*coordinates)
+            return self.elements[idx]
+        if isinstance(coordinates, tuple) and len(coordinates) != 2:
+            raise IndexError("The number of indices must be one or two.")
+
+        raise TypeError(f"Invalid argument. Expected int or tuple of two ints, got {type(coordinates)} instead.")
 
     @property
     def number_of_rows(self):
