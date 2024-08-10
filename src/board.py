@@ -28,7 +28,7 @@ class Board:
         if isinstance(coordinates, int):
             return self.elements[coordinates]
         if isinstance(coordinates, Sequence):
-            # Handle this based on sequence
+            # Handle this based on sequence, cast to tuple
             pass
         if len(coordinates) == 1:
             return self.elements
