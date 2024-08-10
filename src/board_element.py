@@ -1,10 +1,16 @@
+from enum import Enum
+
+
+class BoardElementState(Enum):
+    HIDDEN = 0
+    FLAGGED = 1
+    REVEALED = 2
 
 
 class BoardElement:
     def __init__(self, mined: bool):
-        self._is_mine = mined
-        self._is_revealed = False
-        self._is_flagged = False
+        self._is_mine: bool = mined
+        self._state = BoardElementState.HIDDEN
         self._proximity = 0
 
     @property
@@ -12,8 +18,12 @@ class BoardElement:
         return self._is_mine
 
     @property
-    def is_revealed(self):
-        return self._is_revealed
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value: BoardElementState):
+        self._state = value
 
     @property
     def is_flagged(self):
@@ -33,9 +43,3 @@ class BoardElement:
 
     def toggle_mine(self):
         self._is_mine = not self._is_mine
-
-    def toggle_flag(self):
-        self._is_flagged = not self._is_flagged
-
-    def reveal(self):
-        self._is_revealed = True

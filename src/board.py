@@ -1,6 +1,7 @@
 from board_element import BoardElement
 from random import sample
 from enum import Enum
+from collections.abc import Sequence
 
 
 class GameState(Enum):
@@ -23,12 +24,17 @@ class Board:
         self._game_state = GameState.INITIALIZED
         self._elements: list[BoardElement] = self._set_up_board()
 
-    def __getitem__(self, coords: int | tuple):
-        if isinstance(coords, int):
-            return self.elements[coords]
-        if len(coords) != 2:
+    def __getitem__(self, coordinates: int | Sequence):
+        if isinstance(coordinates, int):
+            return self.elements[coordinates]
+        if isinstance(coordinates, Sequence):
+            # Handle this based on sequence
+            pass
+        if len(coordinates) == 1:
+            return self.elements
+        if len(coordinates) != 2:
             raise IndexError("Invalid number of arguments (must be one or two).")
-        idx = self.coordinates_to_index(*coords)
+        idx = self.coordinates_to_index(*coordinates)
         return self.elements[idx]
 
     @property
@@ -70,11 +76,10 @@ class Board:
         return row * self.number_of_columns + col
 
     def swap_mine_with_empty_element(self, row, col):
-        if self.game_state == GameState.INITIALIZED:
-            idx_mine = self.coordinates_to_index(row, col)
-            idx_empty = sample([(idx, element) for (idx, element) in enumerate(self.elements) if not element.is_mine],
-                               k=1)[0][0]
-            self._elements[idx_mine], self._elements[idx_empty] = self._elements[idx_empty], self._elements[idx_mine]
+        idx_mine = self.coordinates_to_index(row, col)
+        idx_empty = sample([(idx, element) for (idx, element) in enumerate(self.elements) if not element.is_mine],
+                           k=1)[0][0]
+        self._elements[idx_mine], self._elements[idx_empty] = self._elements[idx_empty], self._elements[idx_mine]
 
     def calculate_proximities(self):
         empty_elements = ((idx, element) for (idx, element) in enumerate(self.elements) if not element.is_mine)
