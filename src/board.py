@@ -23,10 +23,12 @@ class Board:
         self._game_state = GameState.INITIALIZED
         self._elements: list[BoardElement] = self._set_up_board()
 
-    def __getitem__(self, row: int, col: int):
-        idx = self.coordinates_to_index(row, col)
-        if idx is None:
-            raise KeyError("Invalid coordinates.")
+    def __getitem__(self, coords: int | tuple):
+        if isinstance(coords, int):
+            return self.elements[coords]
+        if len(coords) != 2:
+            raise IndexError("Invalid number of arguments (must be one or two).")
+        idx = self.coordinates_to_index(*coords)
         return self.elements[idx]
 
     @property
@@ -59,12 +61,12 @@ class Board:
 
     def index_to_coordinates(self, idx: int):
         if idx < 0 or idx >= self.number_of_elements:
-            return None
+            raise IndexError("Invalid board index.")
         return idx // self.number_of_columns, idx % self.number_of_columns
 
     def coordinates_to_index(self, row: int, col: int):
         if row < 0 or row >= self.number_of_rows or col < 0 or col >= self.number_of_columns:
-            return None
+            raise IndexError("Invalid board coordinates.")
         return row * self.number_of_columns + col
 
     def swap_mine_with_empty_element(self, row, col):
@@ -82,7 +84,7 @@ class Board:
             element.proximity = proximity
 
     def check_game_state(self):
-
+        pass
 
     def _set_up_board(self):
         bomb_indices = sample(range(0, self.number_of_elements), k=self.number_of_mines)
