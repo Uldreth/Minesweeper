@@ -75,7 +75,7 @@ class Board:
             raise IndexError(f"Invalid board coordinates: {row}, {col}")
         return row * self.number_of_columns + col
 
-    def swap_mine_with_empty_element(self, row, col):
+    def swap_mine_with_empty_element(self, row: int, col: int):
         idx_mine = self.coordinates_to_index(row, col)
         idx_empty = sample([(idx, element) for (idx, element) in enumerate(self.elements) if not element.is_mine],
                            k=1)[0][0]
@@ -100,7 +100,7 @@ class Board:
         if all_non_mines_are_unflagged and number_of_flags == self.number_of_mines:
             self.game_state = GameState.WIN
 
-    def reveal_element(self, row, col):
+    def reveal_element(self, row: int, col: int):
         element = self[row, col]
         if element.state == BoardElementState.REVEALED:
             return
@@ -118,12 +118,12 @@ class Board:
                             for idx in range(0, self.number_of_elements)]
         return list_of_elements
 
-    def _calculate_proximity_for_single_element(self, row, col):
+    def _calculate_proximity_for_single_element(self, row: int, col: int):
         coords_of_elements_in_proximity = self._get_neighbouring_indices(row, col)
         elements_in_proximity = (self[i, j] for i, j in coords_of_elements_in_proximity)
         return len([element for element in elements_in_proximity if element.is_mine])
 
-    def _get_neighbouring_indices(self, row, col):
+    def _get_neighbouring_indices(self, row: int, col: int):
         index_offset = (-1, 0, 1)
         return ((row + i, col + j) for i in index_offset for j in index_offset
                 if not (i == 0 and j == 0) and (0 <= row + i < self.number_of_rows)
