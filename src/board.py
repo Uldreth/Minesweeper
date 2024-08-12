@@ -14,6 +14,8 @@ class Board:
     def __init__(self, number_of_rows: int, number_of_columns: int, number_of_mines: int):
         if number_of_rows <= 0 or number_of_columns <= 0:
             raise ValueError("The board must have a positive number of rows and columns.")
+        if number_of_rows > 30 or number_of_columns > 30:
+            raise ValueError("The board size cannot exceed 30x30.")
         if number_of_mines <= 0:
             raise ValueError("The board must have at least one mine.")
         self._number_of_rows = number_of_rows
