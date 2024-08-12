@@ -30,6 +30,8 @@ class Board:
     def __getitem__(self, coordinates: int | tuple[int, int]):
         if isinstance(coordinates, int):
             return self.elements[coordinates]
+        if isinstance(coordinates, tuple) and len(coordinates) == 1:
+            return self.elements[coordinates[0]]
         if isinstance(coordinates, tuple) and len(coordinates) == 2:
             idx = self.coordinates_to_index(*coordinates)
             return self.elements[idx]
