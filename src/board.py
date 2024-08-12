@@ -122,8 +122,7 @@ class Board:
 
     def _calculate_proximity_for_single_element(self, row: int, col: int):
         coords_of_elements_in_proximity = self._get_neighbouring_indices(row, col)
-        elements_in_proximity = (self[i, j] for i, j in coords_of_elements_in_proximity)
-        return len([element for element in elements_in_proximity if element.is_mine])
+        return len([self[i, j] for i, j in coords_of_elements_in_proximity if self[i, j].is_mine])
 
     def _get_neighbouring_indices(self, row: int, col: int):
         index_offset = (-1, 0, 1)
