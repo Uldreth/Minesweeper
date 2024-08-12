@@ -91,18 +91,11 @@ class Board:
             element.proximity = proximity
 
     def check_win_state(self):
-        flagged_non_mines = (element for element in self.elements if not element.is_mine
-                         and element.state == BoardElementState.FLAGGED)
-        try:
-            next(flagged_non_mines)
-            all_non_mines_are_unflagged = False
-        except StopIteration:
-            all_non_mines_are_unflagged = True
-        number_of_flags = sum(1 for element in self.elements if element.state == BoardElementState.FLAGGED)
-        if all_non_mines_are_unflagged and number_of_flags == self.number_of_mines:
-            self.game_state = GameState.WIN
-        # TODO: This needs rework, basically all mines should be flagged and all non-mines should be revealed.
-        #   Or alternatively, check out the precise win condition in an existing Minesweeper.
+        all_mines_flagged = all(element.state == BoardElementState.FLAGGED for element in self.elements if element.is_mine)
+        all_non_mines_revealed = all(element.state == BoardElementState.REVEALED
+                                     for element in self.elements if not element.is_mine)
+        self.game_state = GameState.WIN if all_mines_flagged and all_non_mines_revealed \
+                                           and not self.game_state == GameState.LOSS else GameState.LOSS
 
     def reveal_element(self, row: int, col: int):
         element = self[row, col]

@@ -41,6 +41,8 @@ class TestBoard(unittest.TestCase):
         for element in board.elements:
             if element.is_mine:
                 element.state = BoardElementState.FLAGGED
+            else:
+                element.state = BoardElementState.REVEALED
         board.check_win_state()
         self.assertEqual(board.game_state, GameState.WIN)
 
