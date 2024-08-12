@@ -19,6 +19,8 @@ class Board:
         self._number_of_rows = number_of_rows
         self._number_of_columns = number_of_columns
         self._number_of_elements = number_of_rows * number_of_columns
+        if number_of_mines >= self._number_of_elements:
+            raise ValueError("The number of mines must be less than the number of board elements.")
         self._number_of_mines = number_of_mines
         self._game_state = GameState.INITIALIZED
         self._elements: list[BoardElement] = self._set_up_board()
@@ -65,12 +67,12 @@ class Board:
 
     def index_to_coordinates(self, idx: int):
         if idx < 0 or idx >= self.number_of_elements:
-            raise IndexError("Invalid board index.")
+            raise IndexError(f"Invalid board index: {idx}")
         return idx // self.number_of_columns, idx % self.number_of_columns
 
     def coordinates_to_index(self, row: int, col: int):
         if row < 0 or row >= self.number_of_rows or col < 0 or col >= self.number_of_columns:
-            raise IndexError("Invalid board coordinates.")
+            raise IndexError(f"Invalid board coordinates: {row}, {col}")
         return row * self.number_of_columns + col
 
     def swap_mine_with_empty_element(self, row, col):
@@ -87,26 +89,27 @@ class Board:
             element.proximity = proximity
 
     def check_win_state(self):
-        flagged_mines = (element for element in self.elements if element.is_mine
+        flagged_non_mines = (element for element in self.elements if not element.is_mine
                          and element.state == BoardElementState.FLAGGED)
         try:
-            next(flagged_mines)
-            all_mines_are_unflagged = False
+            next(flagged_non_mines)
+            all_non_mines_are_unflagged = False
         except StopIteration:
-            all_mines_are_unflagged = True
-        number_of_flags = sum(1 for element in self.elements if element.is_flagged)
-        if all_mines_are_unflagged and number_of_flags == self.number_of_mines:
+            all_non_mines_are_unflagged = True
+        number_of_flags = sum(1 for element in self.elements if element.state == BoardElementState.FLAGGED)
+        if all_non_mines_are_unflagged and number_of_flags == self.number_of_mines:
             self.game_state = GameState.WIN
 
     def reveal_element(self, row, col):
         element = self[row, col]
+        if element.state == BoardElementState.REVEALED:
+            return
         element.state = BoardElementState.REVEALED
         if element.is_mine:
             self.game_state = GameState.LOSS
-        index_offset = (-1, 0, 1)
         if element.proximity == 0:
-            new_coords = ((row + i, col + j) for i, j in zip(index_offset, index_offset) if not (i == 0 and j == 0))
-            for coords in new_coords:
+            nearby_coords = self._get_neighbouring_indices(row, col)
+            for coords in nearby_coords:
                 self.reveal_element(*coords)
 
     def _set_up_board(self):
@@ -116,8 +119,29 @@ class Board:
         return list_of_elements
 
     def _calculate_proximity_for_single_element(self, row, col):
-        index_offset = (-1, 0, 1)
-        elements_in_proximity = (self[row + i, col + j] for i in index_offset for j in index_offset
-                                 if (i != 0 and j != 0) and (0 <= row + i < self.number_of_rows)
-                                 and (0 <= col + i < self.number_of_columns))
+        coords_of_elements_in_proximity = self._get_neighbouring_indices(row, col)
+        elements_in_proximity = (self[i, j] for i, j in coords_of_elements_in_proximity)
         return len([element for element in elements_in_proximity if element.is_mine])
+
+    def _get_neighbouring_indices(self, row, col):
+        index_offset = (-1, 0, 1)
+        return ((row + i, col + j) for i in index_offset for j in index_offset
+                if not (i == 0 and j == 0) and (0 <= row + i < self.number_of_rows)
+                and (0 <= col + j < self.number_of_columns))
+
+    def __str__(self):
+        horizontal_separator = "*" * (self.number_of_columns * 2 + 1) + "\n"
+        def get_elements_in_row(row_number: int):
+            return (self[row_number, j] for j in range(0, self.number_of_columns))
+        string_rep_list = [horizontal_separator]
+        for i in range(0, self.number_of_rows):
+            row_rep_list = "".join(['*'] + [str(element) + "*" for element in get_elements_in_row(i)] + ["\n" + horizontal_separator])
+            string_rep_list += row_rep_list
+        return "".join(string_rep_list)
+
+
+if __name__ == "__main__":
+    board = Board(number_of_rows=4, number_of_columns=6, number_of_mines=4)
+    board.calculate_proximities()
+    print(board)
+

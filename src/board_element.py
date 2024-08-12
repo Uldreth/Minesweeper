@@ -11,7 +11,10 @@ class BoardElement:
     def __init__(self, mined: bool):
         self._is_mine: bool = mined
         self._state = BoardElementState.HIDDEN
-        self._proximity = 0
+        self._proximity = -1
+
+    def __str__(self):
+        return "m" if self.is_mine else str(self.proximity)
 
     @property
     def is_mine(self):
@@ -24,10 +27,6 @@ class BoardElement:
     @state.setter
     def state(self, value: BoardElementState):
         self._state = value
-
-    @property
-    def is_flagged(self):
-        return self._is_flagged
 
     @property
     def proximity(self):
