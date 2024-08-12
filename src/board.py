@@ -37,7 +37,6 @@ class Board:
             return self.elements[idx]
         if isinstance(coordinates, tuple) and len(coordinates) != 2:
             raise IndexError("The number of indices must be one or two.")
-
         raise TypeError(f"Invalid argument. Expected int or tuple of two ints, got {type(coordinates)} instead.")
 
     @property
@@ -106,6 +105,7 @@ class Board:
         element.state = BoardElementState.REVEALED
         if element.is_mine:
             self.game_state = GameState.LOSS
+            return
         if element.proximity == 0:
             nearby_coords = self._get_neighbouring_indices(row, col)
             for coords in nearby_coords:
