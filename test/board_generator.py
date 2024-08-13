@@ -9,12 +9,6 @@ class BoardGenerator:
         self.number_of_columns = len(self.matrix[0])
         self.number_of_mines = self._validate_matrix_elements()
 
-    def get_row(self, idx: int):
-        return self.matrix[idx]
-
-    def get_column(self, idx: int):
-        return [row[idx] for row in self.matrix]
-
     def create_board(self):
         board_elements = []
         for row in self.matrix:
