@@ -2,9 +2,13 @@ from enum import Enum
 
 
 class BoardElementState(Enum):
+    """Enum representing the state of the field."""
     HIDDEN = 0
+    """The contents of the field are not visible to the player."""
     FLAGGED = 1
+    """The player has marked the field with a flag."""
     REVEALED = 2
+    """The contents of the field are visible to the player."""
 
 
 class BoardElement:
