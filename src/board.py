@@ -106,8 +106,8 @@ class Board:
         all_mines_flagged = all(element.state == BoardElementState.FLAGGED for element in self.elements if element.is_mine)
         all_non_mines_revealed = all(element.state == BoardElementState.REVEALED
                                      for element in self.elements if not element.is_mine)
-        self.game_state = GameState.WIN if all_mines_flagged and all_non_mines_revealed \
-                                           and not self.game_state == GameState.LOSS else GameState.LOSS
+        if all_mines_flagged and all_non_mines_revealed and not self.game_state == GameState.LOSS:
+            self.game_state = GameState.WIN
 
     def reveal_element(self, row: int, col: int):
         element = self[row, col]
