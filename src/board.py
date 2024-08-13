@@ -101,16 +101,16 @@ class Board:
         self._elements[idx_mine], self._elements[idx_empty] = self._elements[idx_empty], self._elements[idx_mine]
 
     def calculate_proximities(self):
-        empty_elements = ((idx, element) for (idx, element) in enumerate(self.elements) if not element.is_mine)
+        empty_elements = [(idx, element) for (idx, element) in enumerate(self.elements) if not element.is_mine]
         for idx, element in empty_elements:
             row, col = self.index_to_coordinates(idx)
             proximity = self._calculate_proximity_for_single_element(row, col)
             element.proximity = proximity
 
     def check_win_state(self):
-        all_mines_flagged = all(element.state == BoardElementState.FLAGGED for element in self.elements if element.is_mine)
-        all_non_mines_revealed = all(element.state == BoardElementState.REVEALED
-                                     for element in self.elements if not element.is_mine)
+        all_mines_flagged = all([element.state == BoardElementState.FLAGGED for element in self.elements if element.is_mine])
+        all_non_mines_revealed = all([element.state == BoardElementState.REVEALED
+                                     for element in self.elements if not element.is_mine])
         if all_mines_flagged and all_non_mines_revealed and not self.game_state == GameState.LOSS:
             self.game_state = GameState.WIN
 
@@ -135,11 +135,9 @@ class Board:
         element.state = BoardElementState.FLAGGED if not is_flagged else BoardElementState.HIDDEN
 
     def auto_reveal(self, row: int, col: int):
-        # Reveals all non-flagged neighbours of an already revealed, non-mine, non zero-numbered element
-        #  if there are as many flags nearby as its proximity number
         element = self[row, col]
         if element.state == BoardElementState.REVEALED and not element.is_mine and element.proximity > 0:
-            coords_of_nearby_elements = list(self._get_neighbouring_indices(row, col))
+            coords_of_nearby_elements = self._get_neighbouring_indices(row, col)
             number_of_nearby_flags = sum(1 for i, j in coords_of_nearby_elements
                                          if self[i, j].state == BoardElementState.FLAGGED)
             if number_of_nearby_flags == element.proximity:
@@ -159,11 +157,9 @@ class Board:
 
     def _get_neighbouring_indices(self, row: int, col: int):
         index_offset = (-1, 0, 1)
-        return ((row + i, col + j) for i in index_offset for j in index_offset
+        return [(row + i, col + j) for i in index_offset for j in index_offset
                 if not (i == 0 and j == 0) and (0 <= row + i < self.number_of_rows)
-                and (0 <= col + j < self.number_of_columns))
-
-
+                and (0 <= col + j < self.number_of_columns)]
 
 
 if __name__ == "__main__":
