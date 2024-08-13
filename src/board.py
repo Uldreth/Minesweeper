@@ -31,6 +31,9 @@ class Board:
         if isinstance(coordinates, int):
             return self.elements[coordinates]
         if isinstance(coordinates, tuple) and len(coordinates) == 1:
+            idx = coordinates[0]
+            if not isinstance(idx, int):
+                raise ValueError(f"Invalid argument. Expected int or tuple of two ints, got {type(idx)} instead.")
             return self.elements[coordinates[0]]
         if isinstance(coordinates, tuple) and len(coordinates) == 2:
             idx = self.coordinates_to_index(*coordinates)
