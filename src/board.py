@@ -128,12 +128,13 @@ class Board:
                 and (0 <= col + j < self.number_of_columns))
 
     def __str__(self):
-        horizontal_separator = "*" * (self.number_of_columns * 2 + 1) + "\n"
+        horizontal_separator = "*" * (self.number_of_columns * 4 + 1) + "\n"
         def get_elements_in_row(row_number: int):
             return (self[row_number, j] for j in range(0, self.number_of_columns))
         string_rep_list = [horizontal_separator]
         for i in range(0, self.number_of_rows):
-            row_rep_list = "".join(['*'] + [str(element) + "*" for element in get_elements_in_row(i)] + ["\n" + horizontal_separator])
+            row_rep_list = "".join(['*'] + [' ' +  str(element) + " " + "*" for element in get_elements_in_row(i)]
+                                   + ["\n" + horizontal_separator])
             string_rep_list += row_rep_list
         return "".join(string_rep_list)
 
