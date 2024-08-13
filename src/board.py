@@ -111,6 +111,11 @@ class Board:
             for coords in nearby_coords:
                 self.reveal_element(*coords)
 
+    def auto_reveal(self):
+        # Reveals all non-flagged neighbours of an already revealed, non-mine, non zero-numbered element
+        #  if there are as many flags nearby as its proximity number
+        pass
+
     def _set_up_board(self):
         bomb_indices = sample(range(0, self.number_of_elements), k=self.number_of_mines)
         list_of_elements = [BoardElement(mined=True) if idx in bomb_indices else BoardElement(mined=False)
