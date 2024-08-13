@@ -1,3 +1,5 @@
+from itertools import count
+
 from src.board_element import BoardElement, BoardElementState
 from random import sample
 from enum import Enum
@@ -125,10 +127,25 @@ class Board:
             for coords in nearby_coords:
                 self.reveal_element(*coords)
 
-    def auto_reveal(self):
+    def toggle_flag_on_element(self, row: int, col: int):
+        element = self[row, col]
+        if element.state == BoardElementState.REVEALED:
+            return
+        is_flagged = element.state == BoardElementState.FLAGGED
+        element.state = BoardElementState.FLAGGED if not is_flagged else BoardElementState.HIDDEN
+
+    def auto_reveal(self, row: int, col: int):
         # Reveals all non-flagged neighbours of an already revealed, non-mine, non zero-numbered element
         #  if there are as many flags nearby as its proximity number
-        pass
+        element = self[row, col]
+        if element.state == BoardElementState.REVEALED and not element.is_mine and element.proximity > 0:
+            coords_of_nearby_elements = list(self._get_neighbouring_indices(row, col))
+            number_of_nearby_flags = sum(1 for i, j in coords_of_nearby_elements
+                                         if self[i, j].state == BoardElementState.FLAGGED)
+            if number_of_nearby_flags == element.proximity:
+                for i, j in coords_of_nearby_elements:
+                    if self[i, j].state == BoardElementState.HIDDEN:
+                        self.reveal_element(i, j)
 
     def _set_up_board(self):
         bomb_indices = sample(range(0, self.number_of_elements), k=self.number_of_mines)

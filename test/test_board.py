@@ -1,6 +1,7 @@
 import unittest
 from src.board import Board, GameState
 from src.board_element import BoardElementState, BoardElement
+from test.board_generator import BoardGenerator
 from random import sample
 
 
@@ -81,6 +82,65 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(board[1, 1].state, BoardElementState.HIDDEN)
         self.assertEqual(board.game_state, GameState.LOSS)
 
+    def test_toggle_flag(self):
+        matrix = [['m', 'm', 'e', 'e'],
+                  ['e', 'e', 'm', 'e'],
+                  ['m', 'e', 'm', 'e']]
+        board = BoardGenerator(*matrix).create_board()
+        board.calculate_proximities()
+        self.assertEqual(board[1, 2].state, BoardElementState.HIDDEN)
+        board.toggle_flag_on_element(1, 2)
+        self.assertEqual(board[1, 2].state, BoardElementState.FLAGGED)
+        board.toggle_flag_on_element(1, 2)
+        self.assertEqual(board[1, 2].state, BoardElementState.HIDDEN)
+
+    def test_auto_reveal(self):
+        matrix = [['m', 'e', 'e'],
+                  ['e', 'e', 'e']]
+        board = BoardGenerator(*matrix).create_board()
+        board.calculate_proximities()
+        board.reveal_element(1, 1)
+        board.toggle_flag_on_element(0, 0)
+        board.auto_reveal(1, 1)
+        self.assertEqual(board[0, 0].state, BoardElementState.FLAGGED)
+        self.assertEqual(board[1, 1].state, BoardElementState.REVEALED)
+        self.assertEqual(board[0, 1].state, BoardElementState.REVEALED)
+        self.assertEqual(board[1, 0].state, BoardElementState.REVEALED)
+        self.assertEqual(board[0, 2].state, BoardElementState.REVEALED)
+        self.assertEqual(board[1, 2].state, BoardElementState.REVEALED)
+
+    def test_auto_reveal_not_all_flags(self):
+        matrix = [['m', 'm', 'e'],
+                  ['e', 'e', 'e']]
+        board = BoardGenerator(*matrix).create_board()
+        board.calculate_proximities()
+        board.reveal_element(1, 0)
+        board.toggle_flag_on_element(0, 0)
+        board.auto_reveal(1, 0)
+        self.assertEqual(board[1, 0].state, BoardElementState.REVEALED)
+        self.assertEqual(board[0, 0].state, BoardElementState.FLAGGED)
+        self.assertEqual(board[0, 1].state, BoardElementState.HIDDEN)
+        self.assertEqual(board[0, 2].state, BoardElementState.HIDDEN)
+        self.assertEqual(board[1, 1].state, BoardElementState.HIDDEN)
+        self.assertEqual(board[1, 2].state, BoardElementState.HIDDEN)
+
+    def test_auto_reveal_multiple_flags(self):
+        matrix = [['m', 'm', 'e'],
+                  ['e', 'e', 'e']]
+        board = BoardGenerator(*matrix).create_board()
+        board.calculate_proximities()
+        board.reveal_element(1, 0)
+        board.toggle_flag_on_element(0, 0)
+        board.toggle_flag_on_element(0, 1)
+        board.auto_reveal(1, 0)
+        self.assertEqual(board[1, 0].state, BoardElementState.REVEALED)
+        self.assertEqual(board[0, 0].state, BoardElementState.FLAGGED)
+        self.assertEqual(board[0, 1].state, BoardElementState.FLAGGED)
+        self.assertEqual(board[0, 2].state, BoardElementState.HIDDEN)
+        self.assertEqual(board[1, 1].state, BoardElementState.REVEALED)
+        self.assertEqual(board[1, 2].state, BoardElementState.HIDDEN)
+
+    # TODO: Rework the rest of the tests to use BoardGenerator
 
 
 if __name__ == '__main__':
