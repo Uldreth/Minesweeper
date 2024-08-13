@@ -1,5 +1,3 @@
-from itertools import count
-
 from src.board_element import BoardElement, BoardElementState
 from random import sample
 from enum import Enum
